@@ -288,11 +288,14 @@ def prep_build_folder(
     project_root = openhands_source_dir.parent
     logger.debug(f'Building source distribution using project root: {project_root}')
 
+    code_dir = Path(build_folder, 'code')
+    code_dir.mkdir(parents=True, exist_ok=True)
+
     if not mount_source:
         # Copy the 'openhands' directory (Source code)
         shutil.copytree(
             openhands_source_dir,
-            Path(build_folder, 'code', 'openhands'),
+            Path(code_dir, 'openhands'),
             ignore=shutil.ignore_patterns(
                 '.*/',
                 '__pycache__/',
@@ -302,16 +305,14 @@ def prep_build_folder(
         )
 
         # Copy the 'microagents' directory (Microagents)
-        shutil.copytree(
-            Path(project_root, 'microagents'), Path(build_folder, 'code', 'microagents')
-        )
+        shutil.copytree(Path(project_root, 'microagents'), Path(code_dir, 'microagents'))
 
     # Copy pyproject.toml and poetry.lock files
     for file in ['pyproject.toml', 'poetry.lock']:
         src = Path(openhands_source_dir, file)
         if not src.exists():
             src = Path(project_root, file)
-        shutil.copy2(src, Path(build_folder, 'code', file))
+        shutil.copy2(src, Path(code_dir, file))
 
     # Create a Dockerfile and write it to build_folder
     dockerfile_content = _generate_dockerfile(

@@ -1,0 +1,18 @@
+[build-system]
+requires = ["poetry-core>=1.9.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "openhands-and-swebench"
+version = "0.1.0"
+description = "Workspace to co-install OpenHands and local SWE-bench fork"
+authors = ["OpenHands workspace"]
+packages = []
+
+[tool.poetry.dependencies]
+python = ">=3.12,<3.14"
+openhands-ai = { path = "OpenHands", develop = true }
+swebench = { path = "SWE-bench", develop = true }
+
+[tool.poetry.group.dev.dependencies]
+pytest = "*"

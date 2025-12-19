@@ -477,6 +477,12 @@ class DockerRuntime(ActionExecutionClient):
             environment['DEBUG'] = 'true'
         # also update with runtime_startup_env_vars
         environment.update(self.config.sandbox.runtime_startup_env_vars)
+        # If mounting source, ensure a writable temp dir (mounted code is read-only)
+        if (
+            self.config.sandbox.mount_source
+            and 'OPENHANDS_TMP_DIR' not in environment
+        ):
+            environment['OPENHANDS_TMP_DIR'] = '/tmp/openhands'
 
         self.log('debug', f'Workspace Base: {self.config.workspace_base}')
 

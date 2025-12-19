@@ -482,7 +482,8 @@ class DockerRuntime(ActionExecutionClient):
             self.config.sandbox.mount_source
             and 'OPENHANDS_TMP_DIR' not in environment
         ):
-            environment['OPENHANDS_TMP_DIR'] = '/tmp/openhands'
+            # Prefer workspace path to avoid writing under mounted read-only source or system root
+            environment['OPENHANDS_TMP_DIR'] = '/workspace/openhands-tmp'
 
         self.log('debug', f'Workspace Base: {self.config.workspace_base}')
 

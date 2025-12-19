@@ -255,6 +255,7 @@ class RemoteRuntime(ActionExecutionClient):
             extra_deps=self.config.sandbox.runtime_extra_deps,
             force_rebuild=self.config.sandbox.force_rebuild_runtime,
             enable_browser=self.config.enable_browser,
+            mount_source=self.config.sandbox.mount_source,
         )
 
         response = self._send_runtime_api_request(

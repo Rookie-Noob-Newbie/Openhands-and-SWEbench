@@ -1,5 +1,6 @@
 import os
 import platform
+from pathlib import Path
 import typing
 from functools import lru_cache
 from typing import Callable
@@ -36,6 +37,7 @@ from openhands.runtime.utils.command import (
 from openhands.runtime.utils.log_streamer import LogStreamer
 from openhands.runtime.utils.port_lock import PortLock, find_available_port_with_lock
 from openhands.runtime.utils.runtime_build import build_runtime_image
+from openhands.utils.paths import get_openhands_repo_root
 from openhands.utils.async_utils import call_sync_from_async
 from openhands.utils.shutdown_listener import add_shutdown_listener
 from openhands.utils.tenacity_stop import stop_if_should_exit
@@ -245,6 +247,7 @@ class DockerRuntime(ActionExecutionClient):
                 force_rebuild=self.config.sandbox.force_rebuild_runtime,
                 extra_build_args=self.config.sandbox.runtime_extra_build_args,
                 enable_browser=self.config.enable_browser,
+                mount_source=self.config.sandbox.mount_source,
             )
 
     @staticmethod
@@ -480,6 +483,22 @@ class DockerRuntime(ActionExecutionClient):
         # Process volumes for mounting
         volumes = self._process_volumes()
 
+        # Mount OpenHands source if requested (skip rebuilds; prefer host code)
+        if self.config.sandbox.mount_source:
+            host_source = self.config.sandbox.source_host_path
+            if host_source is None:
+                host_source = str(get_openhands_repo_root())
+            host_source = os.path.abspath(host_source)
+            container_source = self.config.sandbox.source_mount_path_in_sandbox
+            volumes[host_source] = {'bind': container_source, 'mode': 'ro'}
+            # Ensure PYTHONPATH includes mounted source so imports resolve
+            existing_pythonpath = environment.get('PYTHONPATH', '')
+            environment['PYTHONPATH'] = (
+                f'{container_source}:{existing_pythonpath}'
+                if existing_pythonpath
+                else container_source
+            )
+
         # If no volumes were configured, set to None
         if not volumes:
             logger.debug(
@@ -509,6 +528,9 @@ class DockerRuntime(ActionExecutionClient):
                 ]
         else:
             device_requests = None
+        workdir = (
+            self.config.sandbox.source_mount_path_in_sandbox.rstrip('/') + '/'
+        )
         try:
             if self.runtime_container_image is None:
                 raise ValueError('Runtime container image is not set')
@@ -522,7 +544,7 @@ class DockerRuntime(ActionExecutionClient):
                 entrypoint=[],
                 network_mode=network_mode,
                 ports=port_mapping,
-                working_dir='/openhands/code/',  # do not change this!
+                working_dir=workdir,
                 name=self.container_name,
                 detach=True,
                 environment=environment,

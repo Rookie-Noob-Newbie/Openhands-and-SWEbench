@@ -34,6 +34,7 @@ def _generate_dockerfile(
     build_from: BuildFromImageType = BuildFromImageType.SCRATCH,
     extra_deps: str | None = None,
     enable_browser: bool = True,
+    mount_source: bool = False,
 ) -> str:
     """Generate the Dockerfile content for the runtime image based on the base image.
 
@@ -59,6 +60,7 @@ def _generate_dockerfile(
         build_from_versioned=build_from == BuildFromImageType.VERSIONED,
         extra_deps=extra_deps if extra_deps is not None else '',
         enable_browser=enable_browser,
+        mount_source=mount_source,
     )
     return dockerfile_content
 
@@ -116,6 +118,7 @@ def build_runtime_image(
     force_rebuild: bool = False,
     extra_build_args: list[str] | None = None,
     enable_browser: bool = True,
+    mount_source: bool = False,
 ) -> str:
     """Prepares the final docker build folder.
 
@@ -150,6 +153,7 @@ def build_runtime_image(
                 platform=platform,
                 extra_build_args=extra_build_args,
                 enable_browser=enable_browser,
+                mount_source=mount_source,
             )
             return result
 
@@ -163,6 +167,7 @@ def build_runtime_image(
         platform=platform,
         extra_build_args=extra_build_args,
         enable_browser=enable_browser,
+        mount_source=mount_source,
     )
     return result
 
@@ -177,6 +182,7 @@ def build_runtime_image_in_folder(
     platform: str | None = None,
     extra_build_args: list[str] | None = None,
     enable_browser: bool = True,
+    mount_source: bool = False,
 ) -> str:
     runtime_image_repo, _ = get_runtime_image_repo_and_tag(base_image)
     lock_tag = (
@@ -187,7 +193,8 @@ def build_runtime_image_in_folder(
         f'oh_v{get_version()}_{get_tag_for_versioned_image(base_image)}'
     )
     versioned_image_name = f'{runtime_image_repo}:{versioned_tag}'
-    source_tag = f'{lock_tag}_{get_hash_for_source_files()}'
+    source_hash = 'mount' if mount_source else get_hash_for_source_files()
+    source_tag = f'{lock_tag}_{source_hash}'
     hash_image_name = f'{runtime_image_repo}:{source_tag}'
 
     logger.info(f'Building image: {hash_image_name}')
@@ -201,6 +208,7 @@ def build_runtime_image_in_folder(
             build_from=BuildFromImageType.SCRATCH,
             extra_deps=extra_deps,
             enable_browser=enable_browser,
+            mount_source=mount_source,
         )
         if not dry_run:
             _build_sandbox_image(
@@ -239,7 +247,14 @@ def build_runtime_image_in_folder(
     else:
         logger.debug(f'Build [{hash_image_name}] from scratch')
 
-    prep_build_folder(build_folder, base_image, build_from, extra_deps, enable_browser)
+    prep_build_folder(
+        build_folder,
+        base_image,
+        build_from,
+        extra_deps,
+        enable_browser,
+        mount_source,
+    )
     if not dry_run:
         _build_sandbox_image(
             build_folder,
@@ -265,6 +280,7 @@ def prep_build_folder(
     build_from: BuildFromImageType,
     extra_deps: str | None,
     enable_browser: bool = True,
+    mount_source: bool = False,
 ) -> None:
     # Copy the source code to directory. It will end up in build_folder/code
     # If package is not found, build from source code
@@ -272,22 +288,23 @@ def prep_build_folder(
     project_root = openhands_source_dir.parent
     logger.debug(f'Building source distribution using project root: {project_root}')
 
-    # Copy the 'openhands' directory (Source code)
-    shutil.copytree(
-        openhands_source_dir,
-        Path(build_folder, 'code', 'openhands'),
-        ignore=shutil.ignore_patterns(
-            '.*/',
-            '__pycache__/',
-            '*.pyc',
-            '*.md',
-        ),
-    )
+    if not mount_source:
+        # Copy the 'openhands' directory (Source code)
+        shutil.copytree(
+            openhands_source_dir,
+            Path(build_folder, 'code', 'openhands'),
+            ignore=shutil.ignore_patterns(
+                '.*/',
+                '__pycache__/',
+                '*.pyc',
+                '*.md',
+            ),
+        )
 
-    # Copy the 'microagents' directory (Microagents)
-    shutil.copytree(
-        Path(project_root, 'microagents'), Path(build_folder, 'code', 'microagents')
-    )
+        # Copy the 'microagents' directory (Microagents)
+        shutil.copytree(
+            Path(project_root, 'microagents'), Path(build_folder, 'code', 'microagents')
+        )
 
     # Copy pyproject.toml and poetry.lock files
     for file in ['pyproject.toml', 'poetry.lock']:
@@ -302,6 +319,7 @@ def prep_build_folder(
         build_from=build_from,
         extra_deps=extra_deps,
         enable_browser=enable_browser,
+        mount_source=mount_source,
     )
     dockerfile_path = Path(build_folder, 'Dockerfile')
     with open(str(dockerfile_path), 'w') as f:

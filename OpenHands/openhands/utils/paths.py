@@ -34,3 +34,8 @@ def get_openhands_temp_dir() -> Path:
 
     tmp_dir.mkdir(parents=True, exist_ok=True)
     return tmp_dir
+
+
+def get_openhands_repo_root() -> Path:
+    """Best-effort detection of the OpenHands repo root."""
+    return _detect_repo_root()

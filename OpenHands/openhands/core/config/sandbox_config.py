@@ -44,6 +44,9 @@ class SandboxConfig(BaseModel):
         trusted_dirs: List of directories that can be trusted to run the OpenHands CLI.
         vscode_port: The port to use for VSCode. If None, a random port will be chosen.
             This is useful when deploying OpenHands in a remote machine where you need to expose a specific port.
+        mount_source: When true, do not bake OpenHands source into the runtime image; instead mount the host source tree into the container.
+        source_host_path: Host path of the OpenHands source to mount (when mount_source is true). Defaults to None (auto-detect).
+        source_mount_path_in_sandbox: Container path where the OpenHands source will be mounted.
     """
 
     remote_runtime_api_url: str | None = Field(default='http://localhost:8000')
@@ -94,6 +97,18 @@ class SandboxConfig(BaseModel):
     )
 
     cuda_visible_devices: str | None = Field(default=None)
+    mount_source: bool = Field(
+        default=False,
+        description='If true, do not bake OpenHands source into the runtime image; mount the host source tree into the container instead.',
+    )
+    source_host_path: str | None = Field(
+        default=None,
+        description='Host path of the OpenHands source when mount_source is true. If None, OpenHands will try to auto-detect the repo root.',
+    )
+    source_mount_path_in_sandbox: str = Field(
+        default='/openhands/code',
+        description='Container path where the OpenHands source will be mounted when mount_source is true.',
+    )
     model_config = ConfigDict(extra='forbid')
 
     @classmethod

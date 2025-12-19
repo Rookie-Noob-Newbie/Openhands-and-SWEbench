@@ -9,6 +9,10 @@ cleanup() {
 }
 trap cleanup EXIT
 
+if [ -z "$SANDBOX_MOUNT_SOURCE" ]; then export SANDBOX_MOUNT_SOURCE=true; fi
+if [ -z "$SANDBOX_SOURCE_HOST_PATH" ]; then export SANDBOX_SOURCE_HOST_PATH="$REPO_ROOT"; fi
+if [ -z "$SANDBOX_SOURCE_MOUNT_PATH_IN_SANDBOX" ]; then export SANDBOX_SOURCE_MOUNT_PATH_IN_SANDBOX="/openhands/code"; fi
+
 cd "$REPO_ROOT"
 export ITERATIVE_EVAL_MODE=false
 

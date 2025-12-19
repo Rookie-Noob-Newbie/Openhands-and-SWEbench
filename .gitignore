@@ -1,0 +1,58 @@
+########################
+# Logs
+########################
+*.log
+logs/
+**/logs/
+
+########################
+# Evaluation / Results
+########################
+evaluation_outputs/
+**/evaluation_outputs/
+
+batch_eval/
+**/batch_eval/
+
+########################
+# Experiment outputs (JSON)
+# ⚠️ 只忽略“运行结果”，不忽略配置
+########################
+
+# OpenHands / SWE-bench 评测输出
+*_run*.json
+*__run*.json
+*.DONE
+
+# 顶层 / 实验生成的 json（模型结果）
+glm*.json
+gold*.json
+
+########################
+# Python cache
+########################
+__pycache__/
+*.pyc
+*.pyo
+
+########################
+# Node / frontend
+########################
+node_modules/
+
+########################
+# Build / cache
+########################
+.cache/
+dist/
+build/
+
+########################
+# IDE / OS
+########################
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+SWE-bench.tar

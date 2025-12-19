@@ -74,6 +74,12 @@ def add_evaluation_arguments(parser: argparse.ArgumentParser) -> None:
         help='The directory to save evaluation output',
     )
     parser.add_argument(
+        '--run-id',
+        default=None,
+        type=str,
+        help='Optional run identifier. When set, outputs are written under <eval-output-dir>/<run-id>/..., enabling multiple runs without overwriting.',
+    )
+    parser.add_argument(
         '--eval-n-limit',
         default=None,
         type=int,

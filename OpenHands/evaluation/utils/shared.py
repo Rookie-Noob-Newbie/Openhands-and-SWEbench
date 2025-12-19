@@ -46,6 +46,7 @@ class EvalMetadata(BaseModel):
     llm_config: LLMConfig
     agent_config: AgentConfig | None = None
     max_iterations: int
+    run_id: str | None = None
     eval_output_dir: str
     start_time: str
     git_commit: str
@@ -168,6 +169,7 @@ def make_metadata(
     max_iterations: int,
     eval_note: str | None,
     eval_output_dir: str,
+    run_id: str | None = None,
     data_split: str | None = None,
     details: dict[str, Any] | None = None,
     agent_config: AgentConfig | None = None,
@@ -177,8 +179,11 @@ def make_metadata(
     model_path = model_name.replace(':', '_').replace('@', '-')
     eval_note = f'_N_{eval_note}' if eval_note else ''
 
+    base_output_dir = (
+        os.path.join(eval_output_dir, run_id) if run_id else eval_output_dir
+    )
     eval_output_path = os.path.join(
-        eval_output_dir,
+        base_output_dir,
         dataset_name,
         agent_class,
         f'{model_path}_maxiter_{max_iterations}{eval_note}',
@@ -195,6 +200,7 @@ def make_metadata(
         llm_config=llm_config,
         agent_config=agent_config,
         max_iterations=max_iterations,
+        run_id=run_id,
         eval_output_dir=eval_output_path,
         start_time=time.strftime('%Y-%m-%d %H:%M:%S'),
         git_commit=subprocess.check_output(['git', 'rev-parse', 'HEAD'])

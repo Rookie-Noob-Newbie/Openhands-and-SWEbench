@@ -841,6 +841,7 @@ if __name__ == '__main__':
         args.max_iterations,
         args.eval_note,
         args.eval_output_dir,
+        run_id=args.run_id,
         details=details,
         agent_config=agent_config,
         condenser_config=condenser_config,

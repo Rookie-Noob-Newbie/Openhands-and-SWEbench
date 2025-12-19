@@ -109,6 +109,7 @@ function run_eval() {
     --max-iterations $MAX_ITER \
     --eval-num-workers $NUM_WORKERS \
     --eval-note $eval_note \
+    ${RUN_ID:+--run-id $RUN_ID} \
     --dataset $DATASET \
     --split $SPLIT \
     --mode $MODE"

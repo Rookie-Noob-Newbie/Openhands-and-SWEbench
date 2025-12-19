@@ -107,7 +107,7 @@ To configure the storage module in OpenHands, use the following configuration op
 file_store = "local"
 
 # Path for local file store
-file_store_path = "/data/yxhuang/tmp/file_store"
+file_store_path = "tmp/file_store"
 
 # Optional webhook URL
 file_store_web_hook_url = "https://example.com/api/files"

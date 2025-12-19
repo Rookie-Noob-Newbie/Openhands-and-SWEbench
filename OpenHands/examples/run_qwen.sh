@@ -3,7 +3,7 @@ cd ..
 export ITERATIVE_EVAL_MODE=false
 
 # 使用 GLM-4.6 作为 LLM，在 swe-bench-Verified 上 rollout 500 个实例
-bash /data/yxhuang/OpenHands_copy/evaluation/benchmarks/swe_bench/scripts/run_infer.sh \
+bash evaluation/benchmarks/swe_bench/scripts/run_infer.sh \
   llm.qwen_eval \
   HEAD \
   CodeActAgent \
@@ -12,6 +12,3 @@ bash /data/yxhuang/OpenHands_copy/evaluation/benchmarks/swe_bench/scripts/run_in
   32 \
   princeton-nlp/SWE-bench_Verified \
   test
-conda activate  /data/yxhuang/miniconda3/envs/openhands
-cd test2/OpenHands/examples
-bash run_GLM46_1.sh

@@ -9,6 +9,7 @@ from openhands.core.exceptions import AgentRuntimeBuildError
 from openhands.core.logger import RollingLogger
 from openhands.core.logger import openhands_logger as logger
 from openhands.runtime.builder.base import RuntimeBuilder
+from openhands.utils.paths import get_openhands_temp_dir
 from openhands.utils.term_color import TermColor, colorize
 from openhands.version import get_version
 
@@ -141,7 +142,7 @@ class DockerRuntimeBuilder(RuntimeBuilder):
         if platform:
             buildx_cmd.append(f'--platform={platform}')
 
-        cache_dir = '/data/yxhuang/tmp/.buildx-cache'
+        cache_dir = str(get_openhands_temp_dir() / '.buildx-cache')
         if use_local_cache and self._is_cache_usable(cache_dir):
             buildx_cmd.extend(
                 [

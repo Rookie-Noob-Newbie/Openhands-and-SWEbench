@@ -18,6 +18,7 @@ from openhands.core.config.llm_config import LLMConfig
 from openhands.core.config.mcp_config import MCPConfig
 from openhands.core.config.sandbox_config import SandboxConfig
 from openhands.core.config.security_config import SecurityConfig
+from openhands.utils.paths import get_openhands_temp_dir
 
 
 class OpenHandsConfig(BaseModel):
@@ -45,7 +46,7 @@ class OpenHandsConfig(BaseModel):
         workspace_mount_path (deprecated): Path to mount the workspace. Defaults to `workspace_base`.
         workspace_mount_path_in_sandbox (deprecated): Path to mount the workspace in sandbox. Defaults to `/workspace`.
         workspace_mount_rewrite (deprecated): Path to rewrite the workspace mount path.
-        cache_dir: Path to cache directory. Defaults to `/data/yxhuang/tmp/cache`.
+        cache_dir: Path to cache directory. Defaults to `<OpenHands>/tmp/cache` (or `OPENHANDS_TMP_DIR/cache` if set).
         run_as_openhands: Whether to run as openhands.
         max_iterations: Maximum number of iterations allowed.
         max_budget_per_task: Maximum budget per task, agent stops if exceeded.
@@ -93,7 +94,9 @@ class OpenHandsConfig(BaseModel):
     workspace_mount_rewrite: str | None = Field(default=None)
     # End of deprecated parameters
 
-    cache_dir: str = Field(default='/data/yxhuang/tmp/cache')
+    cache_dir: str = Field(
+        default_factory=lambda: str(get_openhands_temp_dir() / 'cache')
+    )
     run_as_openhands: bool = Field(default=True)
     max_iterations: int = Field(default=OH_MAX_ITERATIONS)
     max_budget_per_task: float | None = Field(default=None)

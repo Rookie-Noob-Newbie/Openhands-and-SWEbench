@@ -37,6 +37,7 @@ from openhands.app_server.sandbox.sandbox_service import (
 from openhands.app_server.sandbox.sandbox_spec_models import SandboxSpecInfo
 from openhands.app_server.sandbox.sandbox_spec_service import SandboxSpecService
 from openhands.app_server.services.injector import InjectorState
+from openhands.utils.paths import get_openhands_temp_dir
 
 _logger = logging.getLogger(__name__)
 
@@ -392,7 +393,7 @@ class ProcessSandboxServiceInjector(SandboxServiceInjector):
     """Dependency injector for process sandbox services."""
 
     base_working_dir: str = Field(
-        default='/data/yxhuang/tmp/openhands-sandboxes',
+        default_factory=lambda: str(get_openhands_temp_dir() / 'openhands-sandboxes'),
         description='Base directory for sandbox working directories',
     )
     base_port: int = Field(

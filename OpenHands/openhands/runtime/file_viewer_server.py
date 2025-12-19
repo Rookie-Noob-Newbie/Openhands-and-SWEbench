@@ -11,6 +11,7 @@ from uvicorn import Config, Server
 
 from openhands.core.logger import openhands_logger as logger
 from openhands.runtime.utils.file_viewer import generate_file_viewer_html
+from openhands.utils.paths import get_openhands_temp_dir
 
 
 def create_app() -> FastAPI:
@@ -84,12 +85,12 @@ def start_file_viewer_server(port: int) -> tuple[str, threading.Thread]:
     """
     # Save the server URL to a file
     server_url = f'http://localhost:{port}'
-    port_path = '/data/yxhuang/tmp/oh-server-url'
-    os.makedirs(os.path.dirname(port_path), exist_ok=True)
+    port_path = get_openhands_temp_dir() / 'oh-server-url'
+    os.makedirs(port_path.parent, exist_ok=True)
     with open(port_path, 'w') as f:
         f.write(server_url)
 
-    logger.info(f'File viewer server URL saved to /data/yxhuang/tmp/oh-server-url: {server_url}')
+    logger.info(f'File viewer server URL saved to {port_path}: {server_url}')
     logger.info(f'Starting file viewer server on port {port}')
 
     app = create_app()

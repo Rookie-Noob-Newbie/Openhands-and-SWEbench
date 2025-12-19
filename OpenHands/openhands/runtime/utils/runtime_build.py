@@ -16,6 +16,7 @@ from openhands.core.exceptions import AgentRuntimeBuildError
 from openhands.core.logger import openhands_logger as logger
 from openhands.runtime.builder import DockerRuntimeBuilder, RuntimeBuilder
 from openhands.version import get_version
+from openhands.utils.paths import get_openhands_temp_dir
 
 
 class BuildFromImageType(Enum):
@@ -136,9 +137,9 @@ def build_runtime_image(
 
     See https://docs.all-hands.dev/usage/architecture/runtime for more details.
     """
-    custom_temp_dir = '/data/yxhuang/tmp'
+    custom_temp_dir = get_openhands_temp_dir()
     if build_folder is None:
-        with tempfile.TemporaryDirectory(dir=custom_temp_dir) as temp_dir:
+        with tempfile.TemporaryDirectory(dir=str(custom_temp_dir)) as temp_dir:
             result = build_runtime_image_in_folder(
                 base_image=base_image,
                 runtime_builder=runtime_builder,
@@ -425,7 +426,7 @@ if __name__ == '__main__':
             f'Runtime image repo: {runtime_image_repo} and runtime image tag: {runtime_image_tag}'
         )
 
-        with tempfile.TemporaryDirectory(dir = '/data/yxhuang/tmp') as temp_dir:
+        with tempfile.TemporaryDirectory(dir=str(get_openhands_temp_dir())) as temp_dir:
             # dry_run is true so we only prepare a temp_dir containing the required source code and the Dockerfile. We
             # then obtain the MD5 hash of the folder and return <image_repo>:<temp_dir_md5_hash>
             runtime_image_hash_name = build_runtime_image(

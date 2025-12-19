@@ -498,6 +498,10 @@ class DockerRuntime(ActionExecutionClient):
                 if existing_pythonpath
                 else container_source
             )
+            self.log(
+                'info',
+                f'Using mount_source: mounting host OpenHands code {host_source} -> {container_source}',
+            )
 
         # If no volumes were configured, set to None
         if not volumes:

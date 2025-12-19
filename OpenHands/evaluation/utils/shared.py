@@ -703,6 +703,12 @@ def get_metrics(state: State) -> dict[str, Any]:
 
 
 def get_default_sandbox_config_for_eval() -> SandboxConfig:
+    def _env_bool(name: str, default: bool = False) -> bool:
+        val = os.environ.get(name)
+        if val is None:
+            return default
+        return val.lower() in ['1', 'true', 'yes', 'on']
+
     return SandboxConfig(
         use_host_network=False,
         # large enough timeout, since some testcases take very long to run
@@ -715,6 +721,11 @@ def get_default_sandbox_config_for_eval() -> SandboxConfig:
         remote_runtime_api_timeout=120,
         remote_runtime_enable_retries=True,
         remote_runtime_class='sysbox',
+        mount_source=_env_bool('SANDBOX_MOUNT_SOURCE', False),
+        source_host_path=os.environ.get('SANDBOX_SOURCE_HOST_PATH'),
+        source_mount_path_in_sandbox=os.environ.get(
+            'SANDBOX_SOURCE_MOUNT_PATH_IN_SANDBOX', '/openhands/code'
+        ),
     )
 
 
